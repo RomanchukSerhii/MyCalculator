@@ -28,20 +28,23 @@ class MainActivity : AppCompatActivity() {
             nineButton.setOnClickListener { updateExpression(nineButton.text.toString()) }
             zeroButton.setOnClickListener { updateExpression(zeroButton.text.toString()) }
             pointButton.setOnClickListener { updateExpression(pointButton.text.toString()) }
-            minusButton.setOnClickListener { updateExpression(minusButton.text.toString()) }
-            plusButton.setOnClickListener { updateExpression(plusButton.text.toString()) }
-            multiplicationButton.setOnClickListener { updateExpression(multiplicationButton.text.toString()) }
-            divisionButton.setOnClickListener { updateExpression(divisionButton.text.toString()) }
+            minusButton.setOnClickListener { updateExpression("-") }
+            plusButton.setOnClickListener { updateExpression("+") }
+            multiplicationButton.setOnClickListener { updateExpression("*") }
+            divisionButton.setOnClickListener { updateExpression("/") }
             percentButton.setOnClickListener { updateExpression(percentButton.text.toString()) }
             allClearButton.setOnClickListener { updateExpression(allClearButton.text.toString()) }
             clearButton.setOnClickListener { updateExpression("CLEAR") }
+        }
+        viewModel.expressionLiveData.observe(this) {
+            binding.expressionTextView.text = it
+        }
+        viewModel.resultLiveData.observe(this) {
+            binding.resultTextView.text = it
         }
     }
 
     private fun updateExpression(number: String) {
         viewModel.addToExpression(number)
-        viewModel.expressionLiveData.observe(this) {
-            binding.expressionTextView.text = it
-        }
     }
 }
