@@ -2,12 +2,17 @@ package com.gmail.serhiiromanchuk.mycalculator
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.gmail.serhiiromanchuk.mycalculator.databinding.ActivityMainBinding
+import javax.script.ScriptEngineManager
+import javax.script.ScriptException
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

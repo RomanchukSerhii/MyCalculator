@@ -13,6 +13,7 @@ import kotlin.math.floor
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private var expression = ""
+    private var result = 0.0
     private val mathSymbolList = listOf('+', '-', '*', '/', '%')
 
     private val _expressionLiveData = MutableLiveData<String>()
@@ -29,27 +30,58 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _resultLiveData.value = "0"
             }
             "CLEAR" -> clearLastSymbol()
-            "+", "-", "*", "/", "%" -> checkLastSymbol(str)
+            "%" -> calculatePercentage()
+            "+", "-", "*", "/" -> checkLastSymbol(str)
             else -> expression += str
         }
         _expressionLiveData.value = expression
 
         if (isLastCharIsNumber() && expression.isNotBlank()) {
-            resultOfExpression()
+            result = resultOfExpression(expression)
+            updateResult(result)
         }
     }
 
-    private fun resultOfExpression() {
-        val result: Double
+    private fun resultOfExpression(expression: String): Double {
         val engine = ScriptEngineManager().getEngineByName("rhino")
 
-        try {
-            result = engine.eval(expression) as Double
-            if (result.isInteger()) {
-                _resultLiveData.value = "= ${result.toInt()}"
-            } else _resultLiveData.value = "= $result"
+        return try {
+            engine.eval(expression) as Double
         } catch (e: ScriptException) {
             Toast.makeText(getApplication(), "Invalid input", Toast.LENGTH_SHORT).show()
+            0.0
+        }
+    }
+
+    private fun updateResult(result: Double) {
+        if (result.isInteger()) {
+            _resultLiveData.value = "= ${result.toInt()}"
+        } else _resultLiveData.value = "= $result"
+    }
+
+    private fun calculatePercentage() {
+        val numbersList: MutableList<String> = expression.split("+", "*", "/", "-").toMutableList()
+        val lastNumber = numbersList[numbersList.size - 1]
+
+        //Remove the last number from the expression
+        expression = expression.substring(0, expression.lastIndexOf(lastNumber))
+
+        when (expression[expression.lastIndex]) {
+            '/', '*' -> {
+                expression += lastNumber.toDouble() / 100
+            }
+            '+', '-' -> {
+                val percentValue = resultOfExpression(
+                    expression.substring(
+                        0,
+                        expression.lastIndex
+                    )
+                ) * (lastNumber.toDouble() / 100)
+
+                expression += if (percentValue.isInteger()) {
+                    percentValue.toInt()
+                } else percentValue
+            }
         }
     }
 
