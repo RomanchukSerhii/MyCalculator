@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import javax.script.ScriptEngineManager
 import javax.script.ScriptException
+import kotlin.math.exp
 import kotlin.math.floor
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -23,14 +24,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun addToExpression(str: String) {
         when (str) {
-            "AC" -> expression = "0"
+            "AC" -> {
+                expression = ""
+                _resultLiveData.value = "0"
+            }
             "CLEAR" -> clearLastSymbol()
             "+", "-", "*", "/", "%" -> checkLastSymbol(str)
             else -> expression += str
         }
         _expressionLiveData.value = expression
 
-        if (isLastCharIsNumber()) {
+        if (isLastCharIsNumber() && expression.isNotBlank()) {
             resultOfExpression()
         }
     }
@@ -42,16 +46,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         try {
             result = engine.eval(expression) as Double
             if (result.isInteger()) {
-                _resultLiveData.value = "=${result.toInt()}"
-            } else _resultLiveData.value = "=$result"
+                _resultLiveData.value = "= ${result.toInt()}"
+            } else _resultLiveData.value = "= $result"
         } catch (e: ScriptException) {
             Toast.makeText(getApplication(), "Invalid input", Toast.LENGTH_SHORT).show()
         }
     }
 
     /**
-     *The method checks for duplication of mathematical signs at the end of the expression,
-     *and if duplication is found, it overwrites with the last entered sign.
+     * The method checks for duplication of mathematical signs at the end of the expression,
+     * and if duplication is found, it overwrites with the last entered sign.
      */
     private fun checkLastSymbol(mathSymbol: String) {
         if (!isLastCharIsNumber()) {
@@ -60,19 +64,31 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         expression += mathSymbol
     }
 
+    /**
+     * Return true if last char in expression is number
+     */
     private fun isLastCharIsNumber(): Boolean {
-        mathSymbolList.forEach {
-            if (expression[expression.length - 1] == it) {
-                return false
+        if (expression.isNotBlank()) {
+            mathSymbolList.forEach {
+                if (expression[expression.length - 1] == it) {
+                    return false
+                }
             }
         }
         return true
     }
 
-    private fun Double.isInteger() = (this == floor(this)) && !this.isInfinite()
-
-
+    /**
+     * Clear last symbol at the expression
+     */
     private fun clearLastSymbol() {
-        expression = expression.substring(0, expression.length - 1)
+        if (expression.isNotBlank()) {
+            expression = expression.substring(0, expression.length - 1)
+        }
     }
+
+    /**
+     * Return true if double is integer
+     */
+    private fun Double.isInteger() = (this == floor(this)) && !this.isInfinite()
 }
