@@ -3,7 +3,9 @@ package com.gmail.serhiiromanchuk.mycalculator
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.gmail.serhiiromanchuk.mycalculator.databinding.ActivityMainBinding
 import javax.script.ScriptEngineManager
@@ -40,12 +42,24 @@ class MainActivity : AppCompatActivity() {
             percentButton.setOnClickListener { updateExpression(percentButton.text.toString()) }
             allClearButton.setOnClickListener { updateExpression(allClearButton.text.toString()) }
             clearButton.setOnClickListener { updateExpression("CLEAR") }
+            equals.setOnClickListener { showResult() }
         }
         viewModel.expressionLiveData.observe(this) {
             binding.expressionTextView.text = it
         }
         viewModel.resultLiveData.observe(this) {
             binding.resultTextView.text = it
+        }
+    }
+
+    private fun showResult() {
+        val expressionTextSize = 20F
+        val resultTextSize = 34F
+        with (binding) {
+            expressionTextView.setTextColor(resources.getColor(R.color.gray, null))
+            expressionTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, expressionTextSize)
+            resultTextView.setTextColor(resources.getColor(R.color.black, null))
+            resultTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, resultTextSize)
         }
     }
 

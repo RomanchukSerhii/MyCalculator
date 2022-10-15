@@ -223,7 +223,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAlignment="textEnd"
-        android:textSize="20sp"
+        android:textSize="30sp"
         android:textColor="@color/black"
         android:fontFamily="@font/jost_regular"
         tools:text="4454+54445+48815+487-78715+8797"
