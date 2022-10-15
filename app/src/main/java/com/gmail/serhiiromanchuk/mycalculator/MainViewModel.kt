@@ -14,7 +14,7 @@ import kotlin.math.floor
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private var expression = ""
     private var result = 0.0
-    private val mathSymbolList = listOf('+', '-', '*', '/', '%')
+    private val mathSymbolList = listOf('+', '-', '*', '/', '%', '.')
 
     private val _expressionLiveData = MutableLiveData<String>()
     val expressionLiveData: LiveData<String>

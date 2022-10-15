@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
             eightButton.setOnClickListener { updateExpression(eightButton.text.toString()) }
             nineButton.setOnClickListener { updateExpression(nineButton.text.toString()) }
             zeroButton.setOnClickListener { updateExpression(zeroButton.text.toString()) }
-            pointButton.setOnClickListener { updateExpression(pointButton.text.toString()) }
+            pointButton.setOnClickListener { updateExpression(".") }
             minusButton.setOnClickListener { updateExpression("-") }
             plusButton.setOnClickListener { updateExpression("+") }
             multiplicationButton.setOnClickListener { updateExpression("*") }
