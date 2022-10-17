@@ -5,10 +5,8 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import javax.script.ScriptEngineManager
 import javax.script.ScriptException
-import kotlin.math.exp
 import kotlin.math.floor
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -19,24 +17,42 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _expressionLiveData = MutableLiveData<String>()
     val expressionLiveData: LiveData<String>
         get() = _expressionLiveData
+
     private val _resultLiveData = MutableLiveData<String>()
     val resultLiveData: LiveData<String>
         get() = _resultLiveData
 
-    fun addToExpression(str: String) {
-        when (str) {
+    private val _isErrorLiveData = MutableLiveData(false)
+    val isErrorLiveData: LiveData<Boolean>
+        get() = _isErrorLiveData
+
+    fun addToExpression(symbol: String) {
+        when (symbol) {
             "AC" -> {
                 expression = ""
                 _resultLiveData.value = "0"
+                clearError()
             }
-            "CLEAR" -> clearLastSymbol()
-            "%" -> calculatePercentage()
-            "+", "-", "*", "/" -> checkLastSymbol(str)
-            else -> expression += str
+            "CLEAR" -> {
+                clearLastSymbol()
+                checkDivisionByZero()
+            }
+            "0" -> {
+                expression += symbol
+                checkDivisionByZero()
+            }
+            "%" -> if (!isLastNumberZero()) calculatePercentage()
+            "+", "-", "*", "/" -> checkLastSymbol(symbol)
+            else -> {
+                // Add a character if the last number in the expression is not zero, or there is a dot after zero
+                if (!isLastNumberZero() || symbol == ".") expression += symbol
+
+                if (symbol == "=" || symbol == ".") clearError()
+            }
         }
         _expressionLiveData.value = expression
 
-        if (isLastCharIsNumber() && expression.isNotBlank()) {
+        if (isLastCharIsNumber() && expression.isNotBlank() && _isErrorLiveData.value == false) {
             result = resultOfExpression(expression)
             updateResult(result)
         }
@@ -59,9 +75,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } else _resultLiveData.value = "= $result"
     }
 
+    private fun checkDivisionByZero() {
+        if (expression.length > 1 && isLastNumberZero()) {
+            val charBeforeZero = expression[expression.lastIndex - 1]
+            _isErrorLiveData.value = charBeforeZero == '/'
+        }
+    }
+
+    private fun clearError() {
+        _isErrorLiveData.value = false
+    }
+
     private fun calculatePercentage() {
-        val numbersList: MutableList<String> = expression.split("+", "*", "/", "-").toMutableList()
-        val lastNumber = numbersList[numbersList.size - 1]
+        val lastNumber = getLastNumber()
 
         //Remove the last number from the expression
         expression = expression.substring(0, expression.lastIndexOf(lastNumber))
@@ -117,6 +143,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (expression.isNotBlank()) {
             expression = expression.substring(0, expression.length - 1)
         }
+    }
+
+    private fun getLastNumber(): String {
+        val numbersList: MutableList<String> = expression.split("+", "*", "/", "-").toMutableList()
+        return numbersList[numbersList.size - 1]
+    }
+
+    private fun isLastNumberZero(): Boolean {
+        return getLastNumber() == "0"
     }
 
     /**

@@ -20,4 +20,5 @@
     <string name="clear_button">Clear button</string>
     <string name="percent">%</string>
     <string name="division">÷</string>
+    <string name="error">= Разделить на ноль нельзя</string>
 </resources>

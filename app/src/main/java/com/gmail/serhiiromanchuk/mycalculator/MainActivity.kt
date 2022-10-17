@@ -14,6 +14,7 @@ import javax.script.ScriptException
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
+    private var isError = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +34,10 @@ class MainActivity : AppCompatActivity() {
             sevenButton.setOnClickListener { updateExpression(sevenButton.text.toString()) }
             eightButton.setOnClickListener { updateExpression(eightButton.text.toString()) }
             nineButton.setOnClickListener { updateExpression(nineButton.text.toString()) }
-            zeroButton.setOnClickListener { updateExpression(zeroButton.text.toString()) }
+            zeroButton.setOnClickListener {
+                updateExpression(zeroButton.text.toString())
+                checkDivisionByZero()
+            }
             pointButton.setOnClickListener { updateExpression(".") }
             minusButton.setOnClickListener { updateExpression("-") }
             plusButton.setOnClickListener { updateExpression("+") }
@@ -41,9 +45,13 @@ class MainActivity : AppCompatActivity() {
             divisionButton.setOnClickListener { updateExpression("/") }
             percentButton.setOnClickListener { updateExpression(percentButton.text.toString()) }
             allClearButton.setOnClickListener { updateExpression(allClearButton.text.toString()) }
-            clearButton.setOnClickListener { updateExpression("CLEAR") }
+            clearButton.setOnClickListener {
+                updateExpression("CLEAR")
+                checkDivisionByZero()
+            }
             equals.setOnClickListener { showResult() }
         }
+
         viewModel.expressionLiveData.observe(this) {
             binding.expressionTextView.text = it
         }
@@ -55,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     private fun showResult() {
         val expressionTextSize = 20F
         val resultTextSize = 34F
-        with (binding) {
+        with(binding) {
             expressionTextView.setTextColor(resources.getColor(R.color.gray, null))
             expressionTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, expressionTextSize)
             resultTextView.setTextColor(resources.getColor(R.color.black, null))
@@ -63,7 +71,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateExpression(number: String) {
-        viewModel.addToExpression(number)
+    private fun checkDivisionByZero() {
+        if (viewModel.isErrorLiveData.value == true) {
+            binding.resultTextView.setText(R.string.error)
+        }
+    }
+
+    private fun updateExpression(symbol: String) {
+        when (symbol) {
+            "AC", "CLEAR", ".", "=" -> viewModel.addToExpression(symbol)
+            else -> if (viewModel.isErrorLiveData.value == false) {
+                viewModel.addToExpression(symbol)
+            }
+        }
+
     }
 }
