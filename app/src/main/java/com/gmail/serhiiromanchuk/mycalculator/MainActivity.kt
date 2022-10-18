@@ -53,7 +53,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.expressionLiveData.observe(this) {
-            binding.expressionTextView.text = it
+            val correctedExpression = correctTheExpression(it)
+            binding.expressionTextView.text = correctedExpression
         }
         viewModel.resultLiveData.observe(this) {
             binding.resultTextView.text = it
@@ -75,6 +76,14 @@ class MainActivity : AppCompatActivity() {
         if (viewModel.isErrorLiveData.value == true) {
             binding.resultTextView.setText(R.string.error)
         }
+    }
+
+    private fun correctTheExpression(expression: String): String {
+        return expression
+            .replace('/', '÷')
+            .replace('*', '×')
+            .replace('.', ',')
+
     }
 
     private fun updateExpression(symbol: String) {
