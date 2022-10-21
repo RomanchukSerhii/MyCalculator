@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
                 updateExpression(zeroButton.text.toString())
                 checkDivisionByZero()
             }
+            degreeButton.setOnClickListener { updateExpression("^") }
             pointButton.setOnClickListener { updateExpression(".") }
             minusButton.setOnClickListener { updateExpression("-") }
             plusButton.setOnClickListener { updateExpression("+") }

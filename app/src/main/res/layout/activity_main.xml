@@ -7,10 +7,10 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/plusMinusButton"
+        android:id="@+id/degreeButton"
         style="@style/myButton"
         android:layout_marginBottom="20dp"
-        android:text="@string/plus_minus"
+        android:text="@string/degree"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/zeroButton"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -20,35 +20,35 @@
         android:id="@+id/zeroButton"
         style="@style/myButton"
         android:text="@string/zero"
-        app:layout_constraintBottom_toBottomOf="@id/plusMinusButton"
+        app:layout_constraintBottom_toBottomOf="@id/degreeButton"
         app:layout_constraintEnd_toStartOf="@id/pointButton"
-        app:layout_constraintStart_toEndOf="@id/plusMinusButton"
-        app:layout_constraintTop_toTopOf="@id/plusMinusButton" />
+        app:layout_constraintStart_toEndOf="@id/degreeButton"
+        app:layout_constraintTop_toTopOf="@id/degreeButton" />
 
     <Button
         android:id="@+id/pointButton"
         style="@style/myButton"
         android:text="@string/point"
-        app:layout_constraintBottom_toBottomOf="@id/plusMinusButton"
+        app:layout_constraintBottom_toBottomOf="@id/degreeButton"
         app:layout_constraintEnd_toEndOf="@id/equals"
         app:layout_constraintStart_toEndOf="@id/zeroButton"
-        app:layout_constraintTop_toTopOf="@id/plusMinusButton" />
+        app:layout_constraintTop_toTopOf="@id/degreeButton" />
 
     <Button
         android:id="@+id/equals"
         style="@style/myButton"
         android:text="@string/equals"
         android:textColor="@color/blue_accent"
-        app:layout_constraintBottom_toBottomOf="@id/plusMinusButton"
+        app:layout_constraintBottom_toBottomOf="@id/degreeButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/pointButton"
-        app:layout_constraintTop_toTopOf="@id/plusMinusButton" />
+        app:layout_constraintTop_toTopOf="@id/degreeButton" />
 
     <Button
         android:id="@+id/oneButton"
         style="@style/myButton"
         android:text="@string/one"
-        app:layout_constraintBottom_toTopOf="@id/plusMinusButton"
+        app:layout_constraintBottom_toTopOf="@id/degreeButton"
         app:layout_constraintEnd_toStartOf="@id/twoButton"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent" />
