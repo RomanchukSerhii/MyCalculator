@@ -7,8 +7,6 @@ import androidx.lifecycle.MutableLiveData
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private var expression = Expression("")
-    private var result = 0.0
-
 
     private val _expressionLiveData = MutableLiveData<String>()
     val expressionLiveData: LiveData<String>
@@ -31,11 +29,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             updateExpression(symbol)
             _expressionLiveData.value = expressionValue
             _isErrorLiveData.value = hasDivisionByZero
-
-            if (isLastCharIsNumber() && expressionValue.isNotBlank() && _isErrorLiveData.value == false) {
-                result = resultOfExpression(expressionValue)
-                updateResult(result)
-            }
+            updateResult(resultOfExpression)
         }
     }
 
