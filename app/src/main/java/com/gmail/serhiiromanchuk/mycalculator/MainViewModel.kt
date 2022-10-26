@@ -12,7 +12,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val expressionLiveData: LiveData<String>
         get() = _expressionLiveData
 
-    private val _resultLiveData = MutableLiveData<String>()
+    private val _resultLiveData = MutableLiveData("0")
     val resultLiveData: LiveData<String>
         get() = _resultLiveData
 
@@ -21,15 +21,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         get() = _isErrorLiveData
 
     fun addToExpression(symbol: String) {
-        if (symbol == "AC") {
-            _resultLiveData.value = "0"
-        }
-
         with(expression) {
             updateExpression(symbol)
             _expressionLiveData.value = expressionValue
             _isErrorLiveData.value = hasDivisionByZero
             updateResult(resultOfExpression)
+        }
+
+        if (symbol == "AC") {
+            _resultLiveData.value = "0"
         }
     }
 

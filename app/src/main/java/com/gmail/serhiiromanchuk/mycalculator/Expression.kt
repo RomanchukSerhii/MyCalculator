@@ -14,12 +14,14 @@ fun Double.isInteger() = (this == floor(this)) && !this.isInfinite()
 class Expression(var expressionValue: String) {
     var hasDivisionByZero = false
     var resultOfExpression = 0.0
+    var isResultSaved = false
     private val mathSymbolList = listOf('+', '-', '*', '/', '%', '.', '^')
 
     fun updateExpression(symbol: String) {
         when (symbol) {
             "AC" -> {
                 expressionValue = ""
+                resultOfExpression = 0.0
                 clearError()
             }
             "CLEAR" -> {
@@ -31,14 +33,21 @@ class Expression(var expressionValue: String) {
                 checkDivisionByZero()
             }
             "%" -> if (!isLastNumberZero()) calculatePercentage()
-            "+", "-", "*", "/", "^"  -> checkLastSymbol(symbol)
+            "+", "-", "*", "/", "^"  -> {
+                checkPreviousResult()
+                checkLastSymbol(symbol)
+            }
+            "=" -> {
+                clearError()
+                isResultSaved = true
+            }
             else -> {
                 // Add a character if the last number in the expression is not zero, or there is a dot after zero
                 if (!isLastNumberZero() || symbol == ".")  {
                     expressionValue += symbol
                 }
 
-                if (symbol == "=" || symbol == ".") clearError()
+                if (symbol == ".") clearError()
             }
         }
 
@@ -73,9 +82,8 @@ class Expression(var expressionValue: String) {
     }
 
     private fun resultOfExpression(expression: String): Double {
-        var correctedExpression = checkExpressionForExponent(expression)
+        val correctedExpression = checkExpressionForExponent(expression)
         val engine = ScriptEngineManager().getEngineByName("rhino")
-        Log.d("MyTag", correctedExpression)
 
         return try {
             engine.eval(correctedExpression) as Double
@@ -124,11 +132,29 @@ class Expression(var expressionValue: String) {
         return true
     }
 
+    /**
+     * Resets expressionValue and writes the previous result to the beginning of the expression
+     * if it was saved by pressing the equals button
+     */
+    private fun checkPreviousResult() {
+        if (isResultSaved) {
+            expressionValue = ""
+            expressionValue += checkResultForInteger(resultOfExpression)
+            isResultSaved = false
+        }
+    }
+
     private fun checkDivisionByZero() {
         if (expressionValue.length > 1 && isLastNumberZero()) {
             val charBeforeZero = expressionValue[expressionValue.lastIndex - 1]
             hasDivisionByZero = charBeforeZero == '/'
         }
+    }
+
+    private fun checkResultForInteger(result: Double): String {
+        return if (result.isInteger()) {
+            "${result.toInt()}"
+        } else "$result"
     }
 
     private fun clearError() {
