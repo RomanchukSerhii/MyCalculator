@@ -103,6 +103,11 @@ class MainActivity : AppCompatActivity() {
                 updateUI()
                 updateExpression("CLEAR")
                 checkDivisionByZero()
+                if (viewModel.expressionLiveData.value == "") {
+                    updateExpression(allClearButton.text.toString())
+                    isResultDisplayed = true
+                    showResult()
+                }
             }
             equals.setOnClickListener {
                 updateExpression(equals.text.toString())

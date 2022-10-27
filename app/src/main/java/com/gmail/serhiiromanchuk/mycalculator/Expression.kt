@@ -15,18 +15,18 @@ class Expression(var expressionValue: String) {
     var hasDivisionByZero = false
     var resultOfExpression = 0.0
     var isResultSaved = false
-    private val mathSymbolList = listOf('+', '-', '*', '/', '%', '.', '^')
 
     fun updateExpression(symbol: String) {
         when (symbol) {
             "AC" -> {
-                expressionValue = ""
-                resultOfExpression = 0.0
-                clearError()
+                clearAllValue()
             }
             "CLEAR" -> {
-                clearLastSymbol()
+                expressionValue = clearLastSymbol(expressionValue)
                 checkDivisionByZero()
+                if (!isLastCharIsNumber()) {
+                    resultOfExpression = resultOfExpression(clearLastSymbol(expressionValue))
+                }
             }
             "0" -> {
                 expressionValue += symbol
@@ -113,7 +113,7 @@ class Expression(var expressionValue: String) {
      */
     private fun checkLastSymbol(mathSymbol: String) {
         if (!isLastCharIsNumber()) {
-            clearLastSymbol()
+            expressionValue = clearLastSymbol(expressionValue)
         }
         expressionValue += mathSymbol
     }
@@ -122,6 +122,7 @@ class Expression(var expressionValue: String) {
      * Return true if last char in expression is number
      */
     private fun isLastCharIsNumber(): Boolean {
+        val mathSymbolList = listOf('+', '-', '*', '/', '%', '^')
         if (expressionValue.isNotBlank()) {
             mathSymbolList.forEach {
                 if (expressionValue[expressionValue.length - 1] == it) {
@@ -161,13 +162,19 @@ class Expression(var expressionValue: String) {
         hasDivisionByZero = false
     }
 
+    private fun clearAllValue() {
+        expressionValue = ""
+        resultOfExpression = 0.0
+        clearError()
+    }
+
     /**
      * Clear last symbol at the expression
      */
-    private fun clearLastSymbol() {
-        if (expressionValue.isNotBlank()) {
-            expressionValue = expressionValue.substring(0, expressionValue.length - 1)
-        }
+    private fun clearLastSymbol(expression: String): String {
+        return if (expression.isNotBlank()) {
+            expressionValue.substring(0, expressionValue.length - 1)
+        } else ""
     }
 
     private fun isLastNumberZero(): Boolean {
