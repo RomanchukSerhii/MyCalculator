@@ -28,28 +28,32 @@ class Expression(var expressionValue: String) {
                     resultOfExpression = resultOfExpression(clearLastSymbol(expressionValue))
                 }
             }
-            "0" -> {
-                expressionValue += symbol
-                checkDivisionByZero()
-            }
             "%" -> if (!isLastNumberZero()) calculatePercentage()
             "+", "-", "*", "/", "^"  -> {
                 checkPreviousResult()
-                checkLastSymbol(symbol)
+                checkLastSymbol()
+                expressionValue += symbol
             }
             "=" -> {
                 clearError()
                 isResultSaved = true
             }
             else -> {
+                if (symbol == ".") {
+                    checkLastSymbol()
+                    clearError()
+                }
+
                 // Add a character if the last number in the expression is not zero, or there is a dot after zero
-                if (!isLastNumberZero() || symbol == ".")  {
+                if (!isLastNumberZero() || symbol == "." )  {
                     expressionValue += symbol
                 }
 
-                if (symbol == ".") clearError()
+                if (symbol == "0") checkDivisionByZero()
             }
         }
+
+
 
         if (isLastCharIsNumber() && expressionValue.isNotBlank() && !hasDivisionByZero) {
             resultOfExpression = resultOfExpression(expressionValue)
@@ -82,7 +86,7 @@ class Expression(var expressionValue: String) {
     }
 
     private fun resultOfExpression(expression: String): Double {
-        val correctedExpression = checkExpressionForExponent(expression)
+        val correctedExpression = getCorrectedExpression(expression)
         val engine = ScriptEngineManager().getEngineByName("rhino")
 
         return try {
@@ -92,9 +96,18 @@ class Expression(var expressionValue: String) {
         }
     }
 
-    private fun checkExpressionForExponent(expression: String): String {
-        val splitExpressionList = expression.split("^")
+    private fun getCorrectedExpression(expression: String): String {
+        if (expression.contains('^')) return correctExpressionWithExponent(expression)
+        return expression
+    }
+
+    private fun correctExpressionWithExponent(expression: String): String {
         var result = expression
+        if (expression.indexOf("^") == 0) {
+            result = "0$expression"
+        }
+
+        val splitExpressionList = result.split("^")
         if (splitExpressionList.size > 1) {
             for (index in 1 until splitExpressionList.size) {
                 val baseExponent = getLastNumber(splitExpressionList[index - 1])
@@ -102,27 +115,25 @@ class Expression(var expressionValue: String) {
                 val resultOfPow = baseExponent.toDouble().pow(exponent.toDouble())
                 result = result.replace("$baseExponent^$exponent", resultOfPow.toString())
             }
-            return result
         }
-        return expression
+        return result
     }
 
     /**
      * The method checks for duplication of mathematical signs at the end of the expression,
      * and if duplication is found, it overwrites with the last entered sign.
      */
-    private fun checkLastSymbol(mathSymbol: String) {
+    private fun checkLastSymbol() {
         if (!isLastCharIsNumber()) {
             expressionValue = clearLastSymbol(expressionValue)
         }
-        expressionValue += mathSymbol
     }
 
     /**
      * Return true if last char in expression is number
      */
     private fun isLastCharIsNumber(): Boolean {
-        val mathSymbolList = listOf('+', '-', '*', '/', '%', '^')
+        val mathSymbolList = listOf('+', '-', '*', '/', '%', '^', '.')
         if (expressionValue.isNotBlank()) {
             mathSymbolList.forEach {
                 if (expressionValue[expressionValue.length - 1] == it) {

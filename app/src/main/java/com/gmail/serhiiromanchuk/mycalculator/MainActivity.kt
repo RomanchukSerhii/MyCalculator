@@ -73,6 +73,7 @@ class MainActivity : AppCompatActivity() {
             pointButton.setOnClickListener {
                 updateUI()
                 updateExpression(".")
+                checkDivisionByZero()
             }
             minusButton.setOnClickListener {
                 updateUI()
@@ -153,7 +154,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkDivisionByZero() {
-        if (viewModel.isErrorLiveData.value == true) {
+        var lastThreeChars = ""
+        val expression = viewModel.expressionLiveData.value
+        if (expression != null && expression.length > 3) {
+            lastThreeChars = expression.substring(expression.length - 3)
+        }
+        if (viewModel.isErrorLiveData.value == true || lastThreeChars == "/0.") {
             binding.resultTextView.setText(R.string.error)
         }
     }
