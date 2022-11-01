@@ -2,20 +2,15 @@ package com.gmail.serhiiromanchuk.mycalculator
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
-import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.gmail.serhiiromanchuk.mycalculator.databinding.ActivityMainBinding
-import javax.script.ScriptEngineManager
-import javax.script.ScriptException
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
-    private var isResultDisplayed = true
-
+    private var isResultDisplayed = false
+    private var isNewExpression = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,142 +19,117 @@ class MainActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
+        viewModel.initExpression(
+            savedInstanceState?.getParcelable(KEY_EXPRESSION) ?: Expression(
+                expressionValue = "",
+                isDivisionByZero = false,
+                resultOfExpression = 0.0
+            )
+        )
+
         with(binding) {
-            oneButton.setOnClickListener {
-                updateUI()
-                updateExpression(oneButton.text.toString())
-            }
-            twoButton.setOnClickListener {
-                updateUI()
-                updateExpression(twoButton.text.toString())
-            }
-            threeButton.setOnClickListener {
-                updateUI()
-                updateExpression(threeButton.text.toString())
-            }
-            fourButton.setOnClickListener {
-                updateUI()
-                updateExpression(fourButton.text.toString())
-            }
-            fiveButton.setOnClickListener {
-                updateUI()
-                updateExpression(fiveButton.text.toString())
-            }
-            sixButton.setOnClickListener {
-                updateUI()
-                updateExpression(sixButton.text.toString())
-            }
-            sevenButton.setOnClickListener {
-                updateUI()
-                updateExpression(sevenButton.text.toString())
-            }
-            eightButton.setOnClickListener {
-                updateUI()
-                updateExpression(eightButton.text.toString())
-            }
-            nineButton.setOnClickListener {
-                updateUI()
-                updateExpression(nineButton.text.toString())
-            }
+            oneButton.setOnClickListener { updateExpression(oneButton.text.toString()) }
+            twoButton.setOnClickListener { updateExpression(twoButton.text.toString()) }
+            threeButton.setOnClickListener { updateExpression(threeButton.text.toString()) }
+            fourButton.setOnClickListener { updateExpression(fourButton.text.toString()) }
+            fiveButton.setOnClickListener { updateExpression(fiveButton.text.toString()) }
+            sixButton.setOnClickListener { updateExpression(sixButton.text.toString()) }
+            sevenButton.setOnClickListener { updateExpression(sevenButton.text.toString()) }
+            eightButton.setOnClickListener { updateExpression(eightButton.text.toString()) }
+            nineButton.setOnClickListener { updateExpression(nineButton.text.toString()) }
             zeroButton.setOnClickListener {
-                updateUI()
                 updateExpression(zeroButton.text.toString())
                 checkDivisionByZero()
             }
-            degreeButton.setOnClickListener {
-                updateUI()
-                updateExpression("^")
-            }
+            degreeButton.setOnClickListener { updateExpression("^") }
             pointButton.setOnClickListener {
-                updateUI()
                 updateExpression(".")
                 checkDivisionByZero()
             }
-            minusButton.setOnClickListener {
-                updateUI()
-                updateExpression("-")
-            }
-            plusButton.setOnClickListener {
-                updateUI()
-                updateExpression("+")
-            }
-            multiplicationButton.setOnClickListener {
-                updateUI()
-                updateExpression("*")
-            }
-            divisionButton.setOnClickListener {
-                updateUI()
-                updateExpression("/")
-            }
-            percentButton.setOnClickListener {
-                updateUI()
-                updateExpression(percentButton.text.toString())
-            }
+            minusButton.setOnClickListener { updateExpression("-") }
+            plusButton.setOnClickListener { updateExpression("+") }
+            multiplicationButton.setOnClickListener { updateExpression("*") }
+            divisionButton.setOnClickListener { updateExpression("/") }
+            percentButton.setOnClickListener { updateExpression(percentButton.text.toString()) }
             allClearButton.setOnClickListener {
-                updateExpression(allClearButton.text.toString())
                 isResultDisplayed = true
-                showResult()
+                isNewExpression = true
+                updateExpression(allClearButton.text.toString())
             }
             clearButton.setOnClickListener {
-                updateUI()
                 updateExpression("CLEAR")
                 checkDivisionByZero()
-                if (viewModel.expressionLiveData.value == "") {
-                    updateExpression(allClearButton.text.toString())
+                if (viewModel.expressionLiveData.value?.expressionValue == "") {
                     isResultDisplayed = true
-                    showResult()
+                    isNewExpression = true
+                    updateExpression(allClearButton.text.toString())
                 }
             }
             equals.setOnClickListener {
-                updateExpression(equals.text.toString())
                 isResultDisplayed = true
-                showResult()
+                updateExpression(equals.text.toString())
             }
         }
 
         viewModel.expressionLiveData.observe(this) {
-            val correctedExpression = correctTheExpression(it)
-            binding.expressionTextView.text = correctedExpression
-        }
-        viewModel.resultLiveData.observe(this) {
-            binding.resultTextView.text = it
+            updateUI(it)
         }
     }
 
-    private fun showResult() {
-        if (isResultDisplayed) {
-            val expressionTextSize = 20F
-            val resultTextSize = 34F
-            with(binding) {
-                expressionTextView.setTextColor(resources.getColor(R.color.gray, null))
-                expressionTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, expressionTextSize)
-                resultTextView.setTextColor(resources.getColor(R.color.black, null))
-                resultTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, resultTextSize)
-            }
-        }
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putParcelable(KEY_EXPRESSION, viewModel.expressionLiveData.value)
+        super.onSaveInstanceState(outState)
     }
 
-    private fun updateUI() {
+    private fun updateUI(expression: Expression) {
+        val expressionTextSize: Float
+        val expressionTextColor: Int
+        var resultTextSize: Float
+        var resultTextColor: Int
+        val correctedExpression = correctTheExpression(expression.expressionValue)
+        val correctedResult = correctTheResult(expression.resultOfExpression)
+
         if (isResultDisplayed) {
-            val expressionTextSize = 30F
-            val resultTextSize = 24F
-            with(binding) {
-                expressionTextView.setTextColor(resources.getColor(R.color.black, null))
-                expressionTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, expressionTextSize)
-                resultTextView.setTextColor(resources.getColor(R.color.gray, null))
-                resultTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, resultTextSize)
-            }
-            isResultDisplayed = false
+            expressionTextSize = resources.getDimension(R.dimen.expression_h2)
+            resultTextSize = resources.getDimension(R.dimen.result_h1)
+            expressionTextColor = R.color.gray
+            resultTextColor = R.color.black
+        } else {
+            expressionTextSize = resources.getDimension(R.dimen.expression_h1)
+            resultTextSize = resources.getDimension(R.dimen.result_h2)
+            expressionTextColor = R.color.black
+            resultTextColor = R.color.gray
         }
+
+        with(binding) {
+            if (isNewExpression) {
+                expressionTextView.text = ""
+                resultTextView.text = getString(R.string.zero)
+                resultTextSize = resources.getDimension(R.dimen.result_h1)
+                resultTextColor = R.color.black
+            } else {
+                expressionTextView.text = correctedExpression
+                resultTextView.text = correctedResult
+            }
+
+            expressionTextView.setTextColor(resources.getColor(expressionTextColor, null))
+            expressionTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, expressionTextSize)
+            resultTextView.setTextColor(resources.getColor(resultTextColor, null))
+            resultTextView.setTextSize(TypedValue.COMPLEX_UNIT_PX, resultTextSize)
+        }
+
+        isResultDisplayed = false
+        isNewExpression = false
     }
 
     private fun checkDivisionByZero() {
         var lastThreeChars = ""
-        val expression = viewModel.expressionLiveData.value
+        val expression = viewModel.expressionLiveData.value?.expressionValue
+        val isDivisionByZero = viewModel.expressionLiveData.value?.isDivisionByZero
         if (expression != null && expression.length > 3) {
             lastThreeChars = expression.substring(expression.length - 3)
         }
-        if (viewModel.isErrorLiveData.value == true || lastThreeChars == "/0.") {
+        if (isDivisionByZero == true || lastThreeChars == "/0.") {
             binding.resultTextView.setText(R.string.error)
         }
     }
@@ -172,13 +142,22 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun correctTheResult(result: Double): String {
+        return if (result.isInteger()) {
+            "= ${result.toInt()}"
+        } else "= $result"
+    }
+
     private fun updateExpression(symbol: String) {
         when (symbol) {
             "AC", "CLEAR", ".", "=" -> viewModel.addToExpression(symbol)
-            else -> if (viewModel.isErrorLiveData.value == false) {
+            else -> if (viewModel.expressionLiveData.value?.isDivisionByZero == false) {
                 viewModel.addToExpression(symbol)
             }
         }
+    }
 
+    companion object {
+        private const val KEY_EXPRESSION = "KEY_EXPRESSION"
     }
 }

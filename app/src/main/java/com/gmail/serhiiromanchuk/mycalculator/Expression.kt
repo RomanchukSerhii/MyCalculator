@@ -1,6 +1,7 @@
 package com.gmail.serhiiromanchuk.mycalculator
 
-import android.util.Log
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 import javax.script.ScriptEngineManager
 import javax.script.ScriptException
 import kotlin.math.floor
@@ -11,10 +12,13 @@ import kotlin.math.pow
  */
 fun Double.isInteger() = (this == floor(this)) && !this.isInfinite()
 
-class Expression(var expressionValue: String) {
-    var hasDivisionByZero = false
-    var resultOfExpression = 0.0
-    var isResultSaved = false
+@Parcelize
+data class Expression(
+    var expressionValue: String,
+    var isDivisionByZero: Boolean,
+    var resultOfExpression: Double
+) : Parcelable {
+    private var isResultSaved = false
 
     fun updateExpression(symbol: String) {
         when (symbol) {
@@ -23,13 +27,14 @@ class Expression(var expressionValue: String) {
             }
             "CLEAR" -> {
                 expressionValue = clearLastSymbol(expressionValue)
-                checkDivisionByZero()
+                isDivisionByZero = checkDivisionByZero()
                 if (!isLastCharIsNumber()) {
                     resultOfExpression = resultOfExpression(clearLastSymbol(expressionValue))
                 }
             }
             "%" -> if (!isLastNumberZero()) calculatePercentage()
-            "+", "-", "*", "/", "^"  -> {
+            "+", "-", "*", "/", "^" -> {
+                if (expressionValue.isBlank()) expressionValue += "0"
                 checkPreviousResult()
                 checkLastSymbol()
                 expressionValue += symbol
@@ -45,17 +50,17 @@ class Expression(var expressionValue: String) {
                 }
 
                 // Add a character if the last number in the expression is not zero, or there is a dot after zero
-                if (!isLastNumberZero() || symbol == "." )  {
+                if (!isLastNumberZero() || symbol == ".") {
                     expressionValue += symbol
                 }
 
-                if (symbol == "0") checkDivisionByZero()
+                if (symbol == "0") isDivisionByZero = checkDivisionByZero()
             }
         }
 
 
 
-        if (isLastCharIsNumber() && expressionValue.isNotBlank() && !hasDivisionByZero) {
+        if (isLastCharIsNumber() && expressionValue.isNotBlank() && !isDivisionByZero) {
             resultOfExpression = resultOfExpression(expressionValue)
         }
     }
@@ -86,7 +91,11 @@ class Expression(var expressionValue: String) {
     }
 
     private fun resultOfExpression(expression: String): Double {
-        val correctedExpression = getCorrectedExpression(expression)
+        var correctedExpression = expression
+        if (expression.contains('^')) {
+            correctedExpression = getCorrectExpressionWithExponent(expression)
+        }
+
         val engine = ScriptEngineManager().getEngineByName("rhino")
 
         return try {
@@ -96,12 +105,7 @@ class Expression(var expressionValue: String) {
         }
     }
 
-    private fun getCorrectedExpression(expression: String): String {
-        if (expression.contains('^')) return correctExpressionWithExponent(expression)
-        return expression
-    }
-
-    private fun correctExpressionWithExponent(expression: String): String {
+    private fun getCorrectExpressionWithExponent(expression: String): String {
         var result = expression
         if (expression.indexOf("^") == 0) {
             result = "0$expression"
@@ -156,11 +160,12 @@ class Expression(var expressionValue: String) {
         }
     }
 
-    private fun checkDivisionByZero() {
-        if (expressionValue.length > 1 && isLastNumberZero()) {
-            val charBeforeZero = expressionValue[expressionValue.lastIndex - 1]
-            hasDivisionByZero = charBeforeZero == '/'
+    private fun checkDivisionByZero(): Boolean {
+        var lastTwoChars = ""
+        if (expressionValue.isNotBlank() && expressionValue.length > 2) {
+            lastTwoChars = expressionValue.substring(expressionValue.length - 2)
         }
+        return lastTwoChars == "/0"
     }
 
     private fun checkResultForInteger(result: Double): String {
@@ -170,7 +175,7 @@ class Expression(var expressionValue: String) {
     }
 
     private fun clearError() {
-        hasDivisionByZero = false
+        isDivisionByZero = false
     }
 
     private fun clearAllValue() {

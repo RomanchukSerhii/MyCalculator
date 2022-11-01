@@ -213,7 +213,7 @@
         android:layout_marginBottom="12dp"
         android:fontFamily="@font/jost_regular"
         android:textColor="@color/black"
-        android:textSize="34sp"
+        android:textSize="@dimen/result_h1"
         app:layout_constraintBottom_toTopOf="@id/divider"
         app:layout_constraintEnd_toEndOf="@id/divider"
         tools:text="= 5689" />
@@ -223,7 +223,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAlignment="textEnd"
-        android:textSize="20sp"
+        android:textSize="@dimen/expression_h2"
         android:textColor="@color/gray"
         android:fontFamily="@font/jost_regular"
         tools:text="4454+54445+48815+487-78715+8797"

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="result_h1">34sp</dimen>
+    <dimen name="result_h2">24sp</dimen>
+    <dimen name="expression_h1">30sp</dimen>
+    <dimen name="expression_h2">20sp</dimen>
+</resources>
