@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+     <item
+         android:id="@+id/tape_length"
+         android:title="@string/tape_length" />
+    <item
+        android:id="@+id/basket_price"
+        android:title="@string/basket_price"/>
+    <item
+        android:id="@+id/bucket_volume"
+        android:title="@string/bucket_volume"/>
+    <item
+        android:id="@+id/circuit"
+        android:title="@string/circuit"/>
+
+</menu>

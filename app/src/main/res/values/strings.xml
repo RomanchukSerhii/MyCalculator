@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MyCalculator</string>
+    <string name="app_name">Калькулятор</string>
     <string name="degree">^</string>
     <string name="zero">0</string>
     <string name="point">,</string>
@@ -21,4 +21,10 @@
     <string name="percent">%</string>
     <string name="division">÷</string>
     <string name="error">= Разделить на ноль нельзя</string>
+    <string name="tape_length">Довжина смужки</string>
+    <string name="basket_price">Ціна кошика</string>
+    <string name="bucket_volume">Об\'єм горшика</string>
+    <string name="circuit">Довжина кола</string>
+    <string name="open">Меню відкрите</string>
+    <string name="close">Меню закрите</string>
 </resources>

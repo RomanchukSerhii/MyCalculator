@@ -3,12 +3,17 @@ package com.gmail.serhiiromanchuk.mycalculator
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.TypedValue
+import android.view.MenuItem
+import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.lifecycle.ViewModelProvider
 import com.gmail.serhiiromanchuk.mycalculator.databinding.ActivityMainBinding
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
+    private lateinit var toggle: ActionBarDrawerToggle
     private var isResultDisplayed = false
     private var isNewExpression = true
 
@@ -16,6 +21,25 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
+        binding.drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        binding.navView.setNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.tape_length -> Toast.makeText(this,
+                    "Clicked", Toast.LENGTH_SHORT).show()
+                R.id.basket_price -> Toast.makeText(this,
+                    "Clicked", Toast.LENGTH_SHORT).show()
+                R.id.bucket_volume -> Toast.makeText(this,
+                    "Clicked", Toast.LENGTH_SHORT).show()
+                R.id.circuit -> Toast.makeText(this,
+                    "Clicked", Toast.LENGTH_SHORT).show()
+            }
+            true
+        }
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
@@ -74,6 +98,13 @@ class MainActivity : AppCompatActivity() {
         viewModel.expressionLiveData.observe(this) {
             updateUI(it)
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (toggle.onOptionsItemSelected(item)) {
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
